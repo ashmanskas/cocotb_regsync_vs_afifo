@@ -37,13 +37,15 @@ uses the relatively new Python3 "async def" and "await" keywords and
 seems generally to allow for simpler-looking Cocotb code; and (2)
 using [Icarus Verilog][icarus] running on my MacBook Air to run the
 Cocotb simulation, instead of logging into my campus Linux box to run
-the fancy commercial simulator. Actually, another intriguing feature
-of Cocotb 1.4 that I have been meaning to try (but have not yet) is
-the ability to force/release signals in addition to depositing values
-into registers; I have been wondering whether this feature would allow
-me to embed module-specific unit tests into a test suite that runs on
-the full design, e.g. by overriding the inputs to a given instance of
-that module.
+the fancy commercial simulator. (If we ever return to commuting by
+train, the ability to simulate simple things on one's local laptop
+could be helpful.) Actually, another intriguing feature of Cocotb 1.4
+that I have been meaning to try (but have not yet) is the ability to
+force/release signals in addition to depositing values into registers;
+I have been wondering whether this feature would allow me to embed
+module-specific unit tests into a test suite that runs on the full
+design, e.g. by overriding the inputs to a given instance of that
+module.
 
 [snug2008]: http://www.sunburst-design.com/papers/CummingsSNUG2008Boston_CDC.pdf
 [cocotb14]: https://docs.cocotb.org/en/latest/release_notes.html#cocotb-1-4-0-dev0-2020-05-22
