@@ -1,0 +1,36 @@
+/Applications/Xcode.app/Contents/Developer/usr/bin/make results.xml
+MODULE=tb TESTCASE= TOPLEVEL=tb TOPLEVEL_LANG=verilog \
+        /usr/local/bin/vvp -M /Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/cocotb/libs -m libcocotbvpi_icarus   sim_build/sim.vvp 
+     -.--ns ERROR    cocotb.gpi                         ..s/cocotb_utils.cpp:69   in utils_dyn_open                  Unable to open lib libpython3.8.so: dlopen(libpython3.8.so, 9): image not found
+
+     -.--ns ERROR    cocotb.gpi                         ..mbed/gpi_embed.cpp:127  in embed_init_python               Failed to find Python shared library
+
+     -.--ns INFO     cocotb.gpi                         ..mbed/gpi_embed.cpp:74   in set_program_name_in_venv        Did not detect Python virtual environment. Using system-wide Python interpreter
+     -.--ns INFO     cocotb.gpi                         ../gpi/GpiCommon.cpp:105  in gpi_print_registered_impl       VPI registered
+     -.--ns INFO     cocotb.gpi                         ..mbed/gpi_embed.cpp:245  in embed_sim_init                  Python interpreter initialized and cocotb loaded!
+     0.00ns INFO     Running on Icarus Verilog version 10.3 (stable)
+     0.00ns INFO     Running tests with cocotb v1.4.0.dev0 from /Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/cocotb
+     0.00ns INFO     Seeding Python random module with 1590173065
+     0.00ns INFO     Found test tb.regsync_test1
+     0.00ns INFO     Running test 1/1: regsync_test1
+     0.00ns INFO     Starting test: "regsync_test1"
+                     Description:  put description here 
+datasize = 16
+  5025.00ns INFO     Test Passed: regsync_test1
+  5025.00ns INFO     Passed 1 tests (0 skipped)
+  5025.00ns INFO     **************************************************************************
+                     ** TEST              PASS/FAIL  SIM TIME(NS)  REAL TIME(S)  RATIO(NS/S) **
+                     **************************************************************************
+                     ** tb.regsync_test1    PASS         5025.00          0.14     37209.88  **
+                     **************************************************************************
+                     
+  5025.00ns INFO     *************************************************************************************
+                     **                                 ERRORS : 0                                      **
+                     *************************************************************************************
+                     **                               SIM TIME : 5025.00 NS                             **
+                     **                              REAL TIME : 0.14 S                                 **
+                     **                        SIM / REAL TIME : 36177.85 NS/S                          **
+                     *************************************************************************************
+                     
+  5025.00ns INFO     Shutting down...
+LXT2 info: dumpfile tb.lxt opened for output.
