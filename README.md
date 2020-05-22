@@ -4,10 +4,10 @@ I tried two different approaches to Paul's request to replace with
 something smaller/simpler the two aFifo instances in
 `hcc_InputChannel.v`.  The first approach is the module named
 `strobed_reg_sync`. The second approach is the module named
-`twoclock_unfifo`.  Both are in the file `strobed_reg_sync.v`. Both
-are inspired by Clifford Cummings's SNUG-2008 [paper][1], "Clock
-Domain Crossing (CDC) Design & Verification Techniques using
-SystemVerilog."
+`twoclock_unfifo`.  Both are in the file
+[`strobed_reg_sync.v`][4]. Both are inspired by Clifford Cummings's
+SNUG-2008 [paper][1], "Clock Domain Crossing (CDC) Design &
+Verification Techniques using SystemVerilog."
 
 The first approach stretches out the write-enable pulse so that it is
 a little more than 1.5x the period of rclk, so that it can then be
@@ -48,3 +48,4 @@ module.
 [1]: http://www.sunburst-design.com/papers/CummingsSNUG2008Boston_CDC.pdf
 [2]: https://docs.cocotb.org/en/latest/release_notes.html#cocotb-1-4-0-dev0-2020-05-22
 [3]: http://iverilog.icarus.com/
+[4]: https://github.com/ashmanskas/cocotb_regsync_vs_afifo/blob/master/strobed_reg_sync.v
