@@ -9,17 +9,6 @@ module tb;
     wire [W-1:0] rdata1, rdata2, rdata3;
     reg [W-1:0] wdata;
 
-    strobed_reg_sync #(.DSIZE(W))
-    dut1 (.rclk(rclk), 
-          .rrst_n_i(!reset),
-          .rinc_i(rinc),
-          .rempty_o(rempty1),
-          .rdata_o(rdata1),
-          .wclk(wclk),
-          .winc_i(winc),
-          .wdata_i(wdata),
-          .wfull_o(wfull1));
-
     aFifo #(.DSIZE(W))
     dut2( .rdata(rdata2),
           .walmostfull(wfull2),

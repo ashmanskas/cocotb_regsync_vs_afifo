@@ -4,6 +4,42 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import FallingEdge, ClockCycles
 
+async def write_then_read(dut,
+                          try_write_twice=False):
+    """ordinary write-then-read operation"""
+    await FallingEdge(dut.wclk)
+    dut.winc <= 1
+    wordvalue = random.randint(0, 65535)
+    dut.wdata <= wordvalue
+    await FallingEdge(dut.wclk)
+    if try_write_twice:
+        await FallingEdge(dut.wclk)
+    dut.winc <= 0
+    await FallingEdge(dut.wclk)
+    for j in range(10):
+        await FallingEdge(dut.rclk)
+        if dut.rempty3 == 0: break
+    await FallingEdge(dut.rclk)
+    assert dut.rempty3 == 0, "expect UNFIFO !empty after write"
+    assert dut.rempty2 == 0, "expect AFIFO !empty after write"
+    assert dut.rdata3 == wordvalue, "expect to read back written word"
+    assert dut.rdata2 == wordvalue, "expect to read back written word"
+    dut.rinc <= 1
+    await FallingEdge(dut.rclk)
+    dut.rinc <= 0
+    await FallingEdge(dut.rclk)
+    assert dut.rempty3 == 1, "expect UNFIFO empty after read"
+    if try_write_twice:
+        # complication: AFIFO actually stores the second word!
+        dut.rinc <= 1
+        await FallingEdge(dut.rclk)
+        dut.rinc <= 0
+        await FallingEdge(dut.rclk)
+    assert dut.rempty2 == 1, "expect AFIFO empty after read"
+    assert dut.rempty3 == 1, "expect UNFIFO empty after read"
+        
+    await ClockCycles(dut.rclk, random.randint(1, 5))
+
 @cocotb.test()
 async def regsync_test1(dut):
     """ put description here """
@@ -25,6 +61,7 @@ async def regsync_test1(dut):
     cocotb.fork(clk40.start())
     cocotb.fork(clk160.start())
 
+    # Reset FIFO
     await ClockCycles(dut.rclk, 10)
     await FallingEdge(dut.rclk)
     dut.reset <= 1
@@ -32,27 +69,27 @@ async def regsync_test1(dut):
     dut.reset <= 0
     await ClockCycles(dut.rclk, 10)
     await FallingEdge(dut.rclk)
-    assert dut.rempty1 == 1, "expect empty after reset"
+    assert dut.rempty3 == 1, "expect UNFIFO empty after reset"
+    assert dut.rempty2 == 1, "expect AFIFO empty after reset"
 
+    # Try a sequence of ordinary write-then-read operations
     for i in range(10):
-        await FallingEdge(dut.wclk)
-        dut.winc <= 1
-        dut.wdata <= random.randint(0, 65535)
-        await FallingEdge(dut.wclk)
-        dut.winc <= 0
-        #dut.wdata <= 0
-        await FallingEdge(dut.wclk)
-        for j in range(10):
-            await FallingEdge(dut.rclk)
-            if dut.rempty1 == 0: break
-        await FallingEdge(dut.rclk)
-        assert dut.rempty1 == 0, "expect !empty after write"
-        dut.rinc <= 1
-        await FallingEdge(dut.rclk)
-        dut.rinc <= 0
-        await FallingEdge(dut.rclk)
-        assert dut.rempty1 == 1, "expect empty after read"
-        await ClockCycles(dut.rclk, random.randint(5, 15))
+        await write_then_read(dut)
+
+    # Try reading when empty
+    await ClockCycles(dut.rclk, 10)
+    await FallingEdge(dut.rclk)
+    dut.rinc <= 1
+    await FallingEdge(dut.rclk)
+    dut.rinc <= 0
+    await FallingEdge(dut.rclk)
+    assert dut.rempty3 == 1, "expect UNFIFO still emtpy"
+    assert dut.rempty2 == 1, "expect AFIFO still emtpy"
+    await ClockCycles(dut.rclk, 10)
+
+    # Try writing twice
+    for i in range(3):
+        await write_then_read(dut, try_write_twice=True)
 
     await ClockCycles(dut.rclk, 20)
     

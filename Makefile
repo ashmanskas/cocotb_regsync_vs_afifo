@@ -1,9 +1,10 @@
 
 TOPLEVEL_LANG = verilog
-util = $(shell pwd)/../hccstar/rtl/Utility
+pwd = $(shell pwd)
+util = $(pwd)/../hccstar/rtl/Utility
 VERILOG_SOURCES = \
-  $(shell pwd)/tb.v \
-  $(util)/strobed_reg_sync.v \
+  $(pwd)/tb.v \
+  $(pwd)/strobed_reg_sync.v \
   $(util)/aFifo/aFifo.v \
   $(util)/aFifo/sync_r2w.v \
   $(util)/aFifo/sync_w2r.v \
