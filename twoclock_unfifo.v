@@ -34,18 +34,9 @@ module twoclock_unfifo #( parameter DSIZE=16 )
    input  wire [DSIZE-1:0] wdata_i,   // data in
    output wire             wfull_o    // full flag (wclk)
    );
-    // Directives for automated triplication:  Note that for now, we do
-    // not triplicate the data stored in the "unfifo".
-
-    // tmrg default triplicate
-    // tmrg do_not_triplicate rclk rrst_n_i rinc_i rempty_o rdata_o 
-    // tmrg do_not_triplicate wclk winc_i wdata_i wfull_o
-    // tmrg do_not_triplicate mem0 mem1
-
     // Synchronize reset signal into wclk domain
     reg [2:0] wsync_reset;  // paranoid 3-FF synchronizer
-    wire [2:0] wsync_resetVoted = wsync_reset;
-    wire wreset = wsync_resetVoted[2];  // synchronizer output
+    wire wreset = wsync_reset[2];  // synchronizer output
     always @ (posedge wclk) begin
         wsync_reset[2:0] <= {wsync_reset[1:0],!rrst_n_i};
     end
@@ -91,8 +82,7 @@ module twoclock_unfifo #( parameter DSIZE=16 )
     // read and write pointers will be equal (next rclk cycle).
     wire rnext = rptr ^ (rinc_i && !rempty_o);
     reg rempty;
-    wire remptyVoted = rempty;
-    assign rempty_o = remptyVoted;
+    assign rempty_o = rempty;
     always @ (posedge rclk) begin
         if (!rrst_n_i) begin
             rptr <= 1'b0;
@@ -109,8 +99,7 @@ module twoclock_unfifo #( parameter DSIZE=16 )
     // one word at a time can be stored.
     wire wnext = wptr ^ (winc_i && !wfull_o);
     reg wfull;
-    wire wfullVoted = wfull;
-    assign wfull_o = wfullVoted;
+    assign wfull_o = wfull;
     always @ (posedge wclk) begin
         if (wreset) begin
             wptr <= 1'b0;
