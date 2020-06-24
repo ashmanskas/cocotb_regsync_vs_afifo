@@ -21,21 +21,31 @@
 // "Clock Domain Crossing (CDC) Design & Verification Techniques Using
 // SystemVerilog" paper by Clifford Cummings, SNUG-2008:
 // http://www.sunburst-design.com/papers/CummingsSNUG2008Boston_CDC.pdf
+
 module twoclock_unfifo #( parameter DSIZE=16 )
   (
    input  wire             rclk,      // read clock
    input  wire             rrst_n_i,  // synchronous reset* (rclk)
    input  wire             rinc_i,    // read enable (rclk)
-   output reg              rempty_o,  // valid* flag for rdata_o (rclk)
+   output wire             rempty_o,  // valid* flag for rdata_o (rclk)
    output wire [DSIZE-1:0] rdata_o,   // data out
    input  wire             wclk,      // write clock
    input  wire             winc_i,    // write enable (wclk)
    input  wire [DSIZE-1:0] wdata_i,   // data in
-   output reg              wfull_o    // full flag (wclk)
+   output wire             wfull_o    // full flag (wclk)
    );
+    // Directives for automated triplication:  Note that for now, we do
+    // not triplicate the data stored in the "unfifo".
+
+    // tmrg default triplicate
+    // tmrg do_not_triplicate rclk rrst_n_i rinc_i rempty_o rdata_o 
+    // tmrg do_not_triplicate wclk winc_i wdata_i wfull_o
+    // tmrg do_not_triplicate mem0 mem1
+
     // Synchronize reset signal into wclk domain
     reg [2:0] wsync_reset;  // paranoid 3-FF synchronizer
-    wire wreset = wsync_reset[2];  // synchronizer output
+    wire [2:0] wsync_resetVoted = wsync_reset;
+    wire wreset = wsync_resetVoted[2];  // synchronizer output
     always @ (posedge wclk) begin
         wsync_reset[2:0] <= {wsync_reset[1:0],!rrst_n_i};
     end
@@ -46,8 +56,8 @@ module twoclock_unfifo #( parameter DSIZE=16 )
     reg wptr, rptr, wq1_rptr, wq2_rptr, rq1_wptr, rq2_wptr;
     always @ (posedge wclk) begin
         if (wreset) begin
-            wq2_rptr <= 0;
-            wq1_rptr <= 0;
+            wq2_rptr <= 1'b0;
+            wq1_rptr <= 1'b0;
         end else begin
             wq2_rptr <= wq1_rptr;
             wq1_rptr <= rptr;
@@ -56,8 +66,8 @@ module twoclock_unfifo #( parameter DSIZE=16 )
     // Sync FIFO write pointer into rclk domain.
     always @ (posedge rclk) begin
         if (!rrst_n_i) begin
-            rq2_wptr <= 0;
-            rq1_wptr <= 0;
+            rq2_wptr <= 1'b0;
+            rq1_wptr <= 1'b0;
         end else begin
             rq2_wptr <= rq1_wptr;
             rq1_wptr <= wptr;
@@ -80,13 +90,16 @@ module twoclock_unfifo #( parameter DSIZE=16 )
     // performed.  The "unfifo" will be empty (next rclk cycle) if the
     // read and write pointers will be equal (next rclk cycle).
     wire rnext = rptr ^ (rinc_i && !rempty_o);
+    reg rempty;
+    wire remptyVoted = rempty;
+    assign rempty_o = remptyVoted;
     always @ (posedge rclk) begin
         if (!rrst_n_i) begin
-            rptr <= 0;
-            rempty_o <= 1;
+            rptr <= 1'b0;
+            rempty <= 1'b1;
         end else begin
             rptr <= rnext;
-            rempty_o <= (rnext == rq2_wptr);
+            rempty <= (rnext == rq2_wptr);
         end
     end
     // Update wptr and wfull: wptr will toggle when a valid write is
@@ -95,13 +108,16 @@ module twoclock_unfifo #( parameter DSIZE=16 )
     // i.e. the "unfifo" is full once it is no longer empty, so only
     // one word at a time can be stored.
     wire wnext = wptr ^ (winc_i && !wfull_o);
+    reg wfull;
+    wire wfullVoted = wfull;
+    assign wfull_o = wfullVoted;
     always @ (posedge wclk) begin
         if (wreset) begin
-            wptr <= 0;
-            wfull_o <= 0;
+            wptr <= 1'b0;
+            wfull <= 1'b0;
         end else begin
             wptr <= wnext;
-            wfull_o <= (wnext != wq2_rptr);  // full if not empty!
+            wfull <= (wnext != wq2_rptr);  // full if not empty!
         end
     end
 endmodule
